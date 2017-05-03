@@ -12,7 +12,7 @@ setup(
     description = ("minhash"),
     license = "BSD",
     keywords = "minhash",
+    py_modules=["minhash"],
     url = "",
-    packages=['minhash'],
-    long_description=read('README'),
+    long_description=read("README"),
 )
