@@ -68,7 +68,7 @@ def generate_coefficients():
     rand_num = random.randint(0, settings.MAX_SHINGLE_ID)
     rand_set.add(rand_num)
 
-    # if rand_num not added, it means that it already exists in set —
+    # if rand_num not added, it means that it already exists in set
     # Try again.
     if len(rand_set) - 1 == hash_num:
         hash_num += 1
