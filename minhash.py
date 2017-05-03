@@ -77,7 +77,6 @@ def generate_coefficients():
 
 
 if __name__ == '__main__':
-
     str_one, str_two = ['','']
     with open(sys.argv[1], 'rb+') as f:
         str_one = f.read()
