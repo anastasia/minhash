@@ -1,5 +1,5 @@
 ### MinHash
-MinHash explanation: http://infolab.stanford.edu/~ullman/mmds/book.pdf 
+MinHash explanation: http://infolab.stanford.edu/~ullman/mmds/book.pdf
 (chapter 3, also archived here: https://perma.cc/K9B4-QTX3)
 A simple take here: https://moz.com/devblog/near-duplicate-detection/
 
@@ -13,4 +13,7 @@ https://github.com/chrisjmccormick/MinHash
 `python minhash.py doc1 doc2`
 
 #### To run in python:
-`minhash.get_minhash(string_a, string_b)`
+```
+import minhash
+minhash.calculate(string_a, string_b)
+```
