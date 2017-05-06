@@ -10,7 +10,6 @@ setup(
     author = "Anastasia Aizman",
     author_email = "anastasia.aizman@gmail.com",
     description = ("minhash"),
-    license = "BSD",
     keywords = "minhash",
     py_modules=["minhash"],
     url = "",
