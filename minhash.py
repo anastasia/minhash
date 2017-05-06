@@ -3,7 +3,7 @@ import random
 import binascii
 import settings
 
-def get_minhash(str_one, str_two):
+def calculate(str_one, str_two):
     shingles_one = str_to_shingles(str_one)
     shingles_two = str_to_shingles(str_two)
 
@@ -13,7 +13,8 @@ def get_minhash(str_one, str_two):
     sigs_a = get_min_signatures(shingles_one, coeffs_a, coeffs_b)
     sigs_b = get_min_signatures(shingles_two, coeffs_a, coeffs_b)
 
-    union_count = 0.0 # has to be float so that our minhash doesn't get cast to int
+    # union_count has to be float so that our minhash doesn't get cast to int
+    union_count = 0.0
     for i, val in enumerate(sigs_a):
         if sigs_b[i] == val:
             union_count += 1
@@ -75,7 +76,6 @@ def generate_coefficients():
 
   return list(rand_set)
 
-
 if __name__ == '__main__':
     str_one, str_two = ['','']
     with open(sys.argv[1], 'rb+') as f:
@@ -84,4 +84,4 @@ if __name__ == '__main__':
     with open(sys.argv[2], 'rb+') as f:
         str_two = f.read()
 
-    print get_minhash(str_one, str_two)
+    print calculate(str_one, str_two)
