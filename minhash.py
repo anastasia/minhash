@@ -1,7 +1,8 @@
 import sys
 import random
 import binascii
-
+import hashlib
+import time
 HASH_NUM = 1000
 
 # 32 byte hash
@@ -16,13 +17,11 @@ SHINGLE_SIZE = 3
 SHINGLE_TYPE = 'word'
 
 def HASHFUNC(x):
-    try:
-        y = x.encode('utf-8')
-    except UnicodeEncodeError:
-        print "x is :", x
-    return binascii.crc32(y) & 0xffffffff
+    return binascii.crc32(x.encode('utf-8')) & 0xffffffff
 
 def calculate(s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=None, max_shingle_id=None, shingle_size=None, shingle_type=None):
+    start_time = time.time()
+    print "MINHASH=========>"
     if type(s1) == str:
         # if string, turn to shingles
         shingles1 = str_to_shingles(s1, shingle_size=shingle_size, shingle_type=shingle_type)
@@ -35,15 +34,22 @@ def calculate(s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=None, max_shi
 
     if not coeffs_a:
         coeffs_a = generate_coefficients(total_hash_num=total_hash_num, max_shingle_id=max_shingle_id)
+        print "MINHASH coeffs_a=========>", time.time()-start_time
         coeffs_b = generate_coefficients(total_hash_num=total_hash_num, max_shingle_id=max_shingle_id)
+        print "MINHASH coeffs_b=========>", time.time()-start_time
 
     sigs_a = get_min_signatures(shingles1, coeffs_a, coeffs_b, total_hash_num=total_hash_num)
+    print "MINHASH sigs_a=========>", time.time()-start_time
+
     sigs_b = get_min_signatures(shingles2, coeffs_a, coeffs_b, total_hash_num=total_hash_num)
+    print "MINHASH sigs_b=========>", time.time()-start_time
 
     union_count = 0
     for i, val in enumerate(sigs_a):
         if sigs_b[i] == val:
             union_count += 1
+
+    print "MINHASH union_count=========>", time.time()-start_time
 
     return union_count / float(HASH_NUM)
 
