@@ -66,7 +66,7 @@ def calculate(s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=None, max_shi
 def get_min_signatures(shingles, coeffs_a, coeffs_b, total_hash_num, hashfunc):
     min_signatures = list()
     hash_count = 0
-
+    print shingles
     while hash_count < total_hash_num:
         min_hash = PRIME + 1
         def reduce_to_smallest(shingle, accum):
