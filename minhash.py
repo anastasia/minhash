@@ -51,8 +51,9 @@ def get_min_signatures(shingles, coeffs_a, coeffs_b, total_hash_num=None):
         for shingle in shingles:
             # hash function is (a*x + b) % c
             # Where 'x' is the input value, 'a' and 'b' are random coefficients, and 'c' is our prime num
+            hashed_shingle = binascii.crc32(shingle) & 0xffffffff
             print "coefficient a:", coeffs_a[hash_count], "multiplied by shingle:", shingle, "plus coefficient b:", coeffs_b[hash_count], "mod prime", PRIME
-            current_hash = (coeffs_a[hash_count] * shingle + coeffs_b[hash_count]) % PRIME
+            current_hash = (coeffs_a[hash_count] * hashed_shingle + coeffs_b[hash_count]) % PRIME
             if current_hash < min_hash:
                 min_hash = current_hash
         min_signatures.append(min_hash)
