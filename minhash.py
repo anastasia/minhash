@@ -15,6 +15,9 @@ SHINGLE_SIZE = 3
 # SHINGLE_TYPE is 'word' or 'char'
 SHINGLE_TYPE = 'word'
 
+def HASHFUNC(x):
+    return binascii.crc32(x) & 0xffffffff
+
 def calculate(s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=None, max_shingle_id=None, shingle_size=None, shingle_type=None):
     if type(s1) == str:
         # if string, turn to shingles
@@ -27,7 +30,6 @@ def calculate(s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=None, max_shi
         shingles2 = s2
 
     if not coeffs_a:
-        print "no coefficients, generating"
         coeffs_a = generate_coefficients(total_hash_num=total_hash_num, max_shingle_id=max_shingle_id)
         coeffs_b = generate_coefficients(total_hash_num=total_hash_num, max_shingle_id=max_shingle_id)
 
@@ -41,21 +43,25 @@ def calculate(s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=None, max_shi
 
     return union_count / float(HASH_NUM)
 
-def get_min_signatures(shingles, coeffs_a, coeffs_b, total_hash_num=None):
+def get_min_signatures(shingles, coeffs_a, coeffs_b, total_hash_num=None, hashfunc=None):
     min_signatures = list()
     hash_count = 0
+
+    if not hashfunc:
+        hashfunc = HASHFUNC
+
     if not total_hash_num:
         total_hash_num = HASH_NUM
+
     while hash_count < total_hash_num:
         min_hash = PRIME + 1
         for shingle in shingles:
             # hash function is (a*x + b) % c
             # Where 'x' is the input value, 'a' and 'b' are random coefficients, and 'c' is our prime num
-            hashed_shingle = binascii.crc32(shingle) & 0xffffffff
-            print "coefficient a:", coeffs_a[hash_count], "multiplied by shingle:", shingle, "plus coefficient b:", coeffs_b[hash_count], "mod prime", PRIME
-            current_hash = (coeffs_a[hash_count] * hashed_shingle + coeffs_b[hash_count]) % PRIME
+            current_hash = (coeffs_a[hash_count] * hashfunc(shingle) + coeffs_b[hash_count]) % PRIME
             if current_hash < min_hash:
                 min_hash = current_hash
+
         min_signatures.append(min_hash)
         hash_count += 1
     return min_signatures
