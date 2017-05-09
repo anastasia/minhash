@@ -17,10 +17,10 @@ SHINGLE_TYPE = 'word'
 
 def HASHFUNC(x):
     try:
-        x = x.encode('utf-8')
+        y = x.encode('utf-8')
     except UnicodeEncodeError:
-        import ipdb; ipdb.set_trace()
-    return binascii.crc32(x) & 0xffffffff
+        print "x is :", x
+    return binascii.crc32(y) & 0xffffffff
 
 def calculate(s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=None, max_shingle_id=None, shingle_size=None, shingle_type=None):
     if type(s1) == str:
