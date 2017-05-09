@@ -16,11 +16,11 @@ SHINGLE_SIZE = 3
 # SHINGLE_TYPE is 'word' or 'char'
 SHINGLE_TYPE = 'word'
 
-# def HASHFUNC(x):
-#     return binascii.crc32(x.encode('utf-8')) & 0xffffffff
-
 def HASHFUNC(x):
-    return int(hashlib.md5(x).hexdigest(), 16)
+    return binascii.crc32(x.encode('utf-8')) & 0xffffffff
+
+# def HASHFUNC(x):
+#     return int(hashlib.md5(x).hexdigest(), 16)
 
 
 def calculate(s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=None, max_shingle_id=None, shingle_size=None, shingle_type=None, hashfunc=None):
