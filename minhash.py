@@ -66,28 +66,28 @@ def calculate(s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=None, max_shi
 def get_min_signatures(shingles, coeffs_a, coeffs_b, total_hash_num, hashfunc):
     min_signatures = list()
     hash_count = 0
-    print shingles
+    start_time = time.time()
+    print "MINHASH get_min_signatures=========>", time.time()-start_time
     while hash_count < total_hash_num:
         min_hash = PRIME + 1
-        def reduce_to_smallest(shingle, accum):
-            min_hash = (coeffs_a[hash_count] * hashfunc(shingle) + coeffs_b[hash_count]) % PRIME
-            if  min_hash < accum:
-                accum = min_hash
+        for shingle in shingles:
+            # hash function is (a*x + b) % c
+            # Where 'x' is the input value, 'a' and 'b' are random coefficients, and 'c' is our prime num
+            # print "MINHASH get_min_signatures, before current_hash=========>", time.time()-start_time
 
+            current_hash = (coeffs_a[hash_count] * hashfunc(shingle) + coeffs_b[hash_count]) % PRIME
+            # print "MINHASH get_min_signatures, after current_hash=========>", time.time()-start_time
 
-        min_hash = reduce(reduce_to_smallest, shingles, PRIME+1)
-        #
-        # for shingle in shingles:
-        #     # hash function is (a*x + b) % c
-        #     # Where 'x' is the input value, 'a' and 'b' are random coefficients, and 'c' is our prime num
-        #     if current_hash < min_hash:
-        #         min_hash = current_hash
+            if current_hash < min_hash:
+                min_hash = current_hash
 
+        print "MINHASH found min=========>", hash_count, time.time()-start_time
         min_signatures.append(min_hash)
         hash_count += 1
-    return min_signatures
 
-# def reduce_to_smallest(shingle, initializer):
+    print "MINHASH get_min_signatures, end=========>", time.time()-start_time
+
+    return min_signatures
 
 def str_to_shingles(string, shingle_size=None, shingle_type=None):
     shingles_in_doc = set()
@@ -104,10 +104,11 @@ def str_to_shingles(string, shingle_size=None, shingle_type=None):
         units = list(string)
 
     for idx in range(0, len(units) - (shingle_size - 1)):
-        shingle = create_hashed_shingle(units[idx:idx+shingle_size])
+        shingle = ''.join(units[idx:idx+shingle_size])
         shingles_in_doc.add(shingle)
 
-    return shingles_in_doc
+    return list(shingles_in_doc)
+    # return shingles_in_doc
 
 def create_hashed_shingle(list_to_create):
     if SHINGLE_TYPE == 'word':
