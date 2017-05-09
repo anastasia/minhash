@@ -23,7 +23,7 @@ def HASHFUNC(x):
     return int(hashlib.md5(x).hexdigest(), 16)
 
 
-def calculate(s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=None, max_shingle_id=None, shingle_size=None, shingle_type=None):
+def calculate(s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=None, max_shingle_id=None, shingle_size=None, shingle_type=None, hashfunc=None):
     start_time = time.time()
     print "MINHASH=========>"
     if type(s1) == str:
