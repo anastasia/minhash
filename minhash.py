@@ -75,7 +75,7 @@ def get_min_signatures(shingles, coeffs_a, coeffs_b, total_hash_num, hashfunc):
                 accum = min_hash
 
 
-        min_hash = reduce(reduce_to_smallest, shingles, initializer=PRIME+1)
+        min_hash = reduce(reduce_to_smallest, shingles, PRIME+1)
         #
         # for shingle in shingles:
         #     # hash function is (a*x + b) % c
