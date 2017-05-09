@@ -16,8 +16,12 @@ SHINGLE_SIZE = 3
 # SHINGLE_TYPE is 'word' or 'char'
 SHINGLE_TYPE = 'word'
 
+# def HASHFUNC(x):
+#     return binascii.crc32(x.encode('utf-8')) & 0xffffffff
+
 def HASHFUNC(x):
-    return binascii.crc32(x.encode('utf-8')) & 0xffffffff
+    return int(hashlib.md5(x).hexdigest(), 16)
+
 
 def calculate(s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=None, max_shingle_id=None, shingle_size=None, shingle_type=None):
     start_time = time.time()
@@ -38,10 +42,16 @@ def calculate(s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=None, max_shi
         coeffs_b = generate_coefficients(total_hash_num=total_hash_num, max_shingle_id=max_shingle_id)
         print "MINHASH coeffs_b=========>", time.time()-start_time
 
-    sigs_a = get_min_signatures(shingles1, coeffs_a, coeffs_b, total_hash_num=total_hash_num)
+    if not hashfunc:
+        hashfunc = HASHFUNC
+
+    if not total_hash_num:
+        total_hash_num = HASH_NUM
+
+    sigs_a = get_min_signatures(shingles1, coeffs_a, coeffs_b, total_hash_num=total_hash_num, hashfunc=hashfunc)
     print "MINHASH sigs_a=========>", time.time()-start_time
 
-    sigs_b = get_min_signatures(shingles2, coeffs_a, coeffs_b, total_hash_num=total_hash_num)
+    sigs_b = get_min_signatures(shingles2, coeffs_a, coeffs_b, total_hash_num=total_hash_num, hashfunc=hashfunc)
     print "MINHASH sigs_b=========>", time.time()-start_time
 
     union_count = 0
@@ -53,28 +63,31 @@ def calculate(s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=None, max_shi
 
     return union_count / float(HASH_NUM)
 
-def get_min_signatures(shingles, coeffs_a, coeffs_b, total_hash_num=None, hashfunc=None):
+def get_min_signatures(shingles, coeffs_a, coeffs_b, total_hash_num, hashfunc):
     min_signatures = list()
     hash_count = 0
 
-    if not hashfunc:
-        hashfunc = HASHFUNC
-
-    if not total_hash_num:
-        total_hash_num = HASH_NUM
-
     while hash_count < total_hash_num:
         min_hash = PRIME + 1
-        for shingle in shingles:
-            # hash function is (a*x + b) % c
-            # Where 'x' is the input value, 'a' and 'b' are random coefficients, and 'c' is our prime num
-            current_hash = (coeffs_a[hash_count] * hashfunc(shingle) + coeffs_b[hash_count]) % PRIME
-            if current_hash < min_hash:
-                min_hash = current_hash
+        def reduce_to_smallest(shingle, accum):
+            min_hash = (coeffs_a[hash_count] * hashfunc(shingle) + coeffs_b[hash_count]) % PRIME
+            if  min_hash < accum:
+                accum = min_hash
+
+
+        min_hash = reduce(reduce_to_smallest, shingles, initializer=PRIME+1)
+        #
+        # for shingle in shingles:
+        #     # hash function is (a*x + b) % c
+        #     # Where 'x' is the input value, 'a' and 'b' are random coefficients, and 'c' is our prime num
+        #     if current_hash < min_hash:
+        #         min_hash = current_hash
 
         min_signatures.append(min_hash)
         hash_count += 1
     return min_signatures
+
+# def reduce_to_smallest(shingle, initializer):
 
 def str_to_shingles(string, shingle_size=None, shingle_type=None):
     shingles_in_doc = set()
