@@ -14,7 +14,7 @@ SHINGLE_TYPE = 3
 SHINGLE_TYPE = 'word'
 
 def HASH_FUNC(x):
-    return binascii.crc32(x.encode('utf-8')) & 0xffffffff
+    return binascii.crc32(x) & 0xffffffff
 
 def calculate(
     s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=HASH_NUM,
