@@ -43,7 +43,7 @@ def calculate(
         if sigs_b[i] == val:
             union_count += 1
 
-    return union_count / float(_hash_num)
+    return union_count / float(total_hash_num)
 
 def get_min_signatures(shingles, coeffs_a, coeffs_b, total_hash_num=HASH_NUM, hash_func=HASH_FUNC, prime=PRIME):
     min_signatures = list()
