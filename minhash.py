@@ -1,68 +1,71 @@
 import sys
 import random
 import binascii
+import time
 
 HASH_NUM = 1000
-
 # 32 byte hash
 MAX_SHINGLE_ID = 2**32-1
-
-# prime num is the next prime greater than MAX_SHINGLE_ID
+# PRIME is the next prime greater than MAX_SHINGLE_ID
 PRIME = 4294967311
-
 SHINGLE_SIZE = 3
-
+SHINGLE_TYPE = 3
 # SHINGLE_TYPE is 'word' or 'char'
 SHINGLE_TYPE = 'word'
 
-def calculate(s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=None, max_shingle_id=None, shingle_size=None, shingle_type=None):
+def HASH_FUNC(x):
+    return binascii.crc32(x.encode('utf-8')) & 0xffffffff
+
+def calculate(
+    s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=HASH_NUM,
+    max_shingle_id=MAX_SHINGLE_ID, shingle_size=SHINGLE_SIZE,
+    shingle_type=SHINGLE_TYPE, hash_func=HASH_FUNC, prime=PRIME
+    ):
     if type(s1) == str:
         # if string, turn to shingles
         shingles1 = str_to_shingles(s1, shingle_size=shingle_size, shingle_type=shingle_type)
         shingles2 = str_to_shingles(s2, shingle_size=shingle_size, shingle_type=shingle_type)
 
     elif type(s1) == list or type(s1) == set:
-        # assuming shingles
+        # HACK: assuming shingles
         shingles1 = s1
         shingles2 = s2
 
-    if not coeffs_a and not coeffs_b:
+    if not coeffs_a:
         coeffs_a = generate_coefficients(total_hash_num=total_hash_num, max_shingle_id=max_shingle_id)
         coeffs_b = generate_coefficients(total_hash_num=total_hash_num, max_shingle_id=max_shingle_id)
 
-    sigs_a = get_min_signatures(shingles1, coeffs_a, coeffs_b)
-    sigs_b = get_min_signatures(shingles2, coeffs_a, coeffs_b)
+    sigs_a = get_min_signatures(shingles1, coeffs_a, coeffs_b, total_hash_num=total_hash_num, hash_func=hash_func)
+    sigs_b = get_min_signatures(shingles2, coeffs_a, coeffs_b, total_hash_num=total_hash_num, hash_func=hash_func)
 
     union_count = 0
     for i, val in enumerate(sigs_a):
         if sigs_b[i] == val:
             union_count += 1
 
-    return union_count / float(HASH_NUM)
+    return union_count / float(total_hash_num)
 
-def get_min_signatures(shingles, coeffs_a, coeffs_b):
+def get_min_signatures(shingles, coeffs_a, coeffs_b, total_hash_num=HASH_NUM, hash_func=HASH_FUNC, prime=PRIME):
     min_signatures = list()
     hash_count = 0
-    while hash_count < HASH_NUM:
-        min_hash = PRIME + 1
+
+    while hash_count < total_hash_num:
+        min_hash = prime + 1
         for shingle in shingles:
             # hash function is (a*x + b) % c
             # Where 'x' is the input value, 'a' and 'b' are random coefficients, and 'c' is our prime num
-            current_hash = (coeffs_a[hash_count] * shingle + coeffs_b[hash_count]) % PRIME
+            current_hash = (coeffs_a[hash_count] * hash_func(shingle) + coeffs_b[hash_count]) % prime
+
             if current_hash < min_hash:
                 min_hash = current_hash
+
         min_signatures.append(min_hash)
         hash_count += 1
+
     return min_signatures
 
-def str_to_shingles(string, shingle_size=None, shingle_type=None):
+def str_to_shingles(string, shingle_size=SHINGLE_SIZE, shingle_type=SHINGLE_TYPE):
     shingles_in_doc = set()
-
-    if not shingle_size:
-        shingle_size = SHINGLE_SIZE
-
-    if not shingle_type:
-        shingle_type = SHINGLE_TYPE
 
     if shingle_type == 'word':
         units = string.split(' ')
@@ -70,31 +73,15 @@ def str_to_shingles(string, shingle_size=None, shingle_type=None):
         units = list(string)
 
     for idx in range(0, len(units) - (shingle_size - 1)):
-        shingle = create_hashed_shingle(units[idx:idx+shingle_size])
+        shingle = ''.join(units[idx:idx+shingle_size])
         shingles_in_doc.add(shingle)
 
-    return shingles_in_doc
+    return list(shingles_in_doc)
 
-def create_hashed_shingle(list_to_create):
-    if SHINGLE_TYPE == 'word':
-        shingle = ' '.join(list_to_create)
-
-    elif SHINGLE_TYPE == 'char':
-        shingle = ''.join(list_to_create)
-
-    # hash the shingle to a 32-bit integer
-    return binascii.crc32(shingle) & 0xffffffff
-
-def generate_coefficients(total_hash_num=None, max_shingle_id=None):
+def generate_coefficients(total_hash_num=HASH_NUM, max_shingle_id=MAX_SHINGLE_ID):
     # create a unique set of 'HASH_NUM' random values
     rand_set = set()
     hash_num = 0
-
-    if not total_hash_num:
-        total_hash_num = HASH_NUM
-
-    if not max_shingle_id:
-        max_shingle_id = MAX_SHINGLE_ID
 
     while hash_num < total_hash_num:
         rand_num = random.randint(0, max_shingle_id)
@@ -115,4 +102,4 @@ if __name__ == '__main__':
     with open(sys.argv[2], 'rb+') as f:
         str_two = f.read()
 
-    print calculate(str_one, str_two)
+    sys.stdout.write(calculate(str_one, str_two))
