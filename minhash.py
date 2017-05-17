@@ -73,7 +73,11 @@ def str_to_shingles(string, shingle_size=SHINGLE_SIZE, shingle_type=SHINGLE_TYPE
         units = list(string)
 
     for idx in range(0, len(units) - (shingle_size - 1)):
-        shingle = ''.join(units[idx:idx+shingle_size])
+        if shingle_type == 'word':
+            shingle = ' '.join(units[idx:idx+shingle_size])
+        elif shingle_type == 'char':
+            shingle = ''.join(units[idx:idx+shingle_size])
+
         shingles_in_doc.add(shingle)
 
     return list(shingles_in_doc)
