@@ -29,6 +29,20 @@ SHINGLE_TYPE = 'word'
 def HASH_FUNC(x):
     return binascii.crc32(x.encode('utf-8')) & 0xffffffff
 
+def show_hash(x:int, hash_size=HASH_SIZE, strict=False, verbose=True):
+    showable = ("{" + "0:0{}b".format(hash_size) + "}").format(x)
+
+    if hash_size < len(showable):
+        msg = "{} overflows a hash size of {}. Found size {}".format(x, hash_size, len(showable))
+        if strict:
+            raise RuntimeError(msg)
+        elif verbose:
+            print("[WARNING] {}".format(msg))
+        else:
+            pass
+
+    return showable
+
 def calculate(
     s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=HASH_NUM,
     max_shingle_id=MAX_SHINGLE_ID, shingle_size=SHINGLE_SIZE,
