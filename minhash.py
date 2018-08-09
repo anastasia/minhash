@@ -112,11 +112,21 @@ def generate_coefficients(total_hash_num=HASH_NUM, max_shingle_id=MAX_SHINGLE_ID
     return list(rand_set)
 
 if __name__ == '__main__':
-    str_one, str_two = ['','']
-    with open(sys.argv[1], 'rb+') as f:
-        str_one = f.read()
+    if len(sys.argv[1:]) == 0 or sys.argv[1] in ["--help", "-h"]:
+        print("minhash.py  --  calculate the minhash of two files")
+        print("USAGE:")
+        print()
+        print("  python3 minhash.py file1 file2")
+        print()
+        print("file1 - file to compare")
+        print("file2 - file to compare")
+    else:
 
-    with open(sys.argv[2], 'rb+') as f:
-        str_two = f.read()
+        str_one, str_two = ['','']
+        with open(sys.argv[1], 'rb+') as f:
+            str_one = f.read()
 
-    sys.stdout.write(calculate(str_one, str_two))
+        with open(sys.argv[2], 'rb+') as f:
+            str_two = f.read()
+
+        sys.stdout.write(calculate(str_one, str_two))
