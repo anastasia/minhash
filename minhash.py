@@ -5,9 +5,22 @@ import time
 
 HASH_NUM = 1000
 # 32 byte hash
-MAX_SHINGLE_ID = 2**32-1
+HASH_SIZE = 32
+MAX_SHINGLE_ID = 2**HASH_SIZE-1
+
 # PRIME is the next prime greater than MAX_SHINGLE_ID
-PRIME = 4294967311
+def next_prime(hsize:int):
+    book = {
+        '8': 257,
+        '16': 65537,
+        '32': 4294967311,
+    }
+    if str(hsize) in book.keys():
+        return book[str(hsize)]
+    else:
+        raise NotImplementedError("only support for 8-,16-, and 32-byte hashes included")
+
+PRIME = next_prime(HASH_SIZE)
 SHINGLE_SIZE = 3
 SHINGLE_TYPE = 3
 # SHINGLE_TYPE is 'word' or 'char'
