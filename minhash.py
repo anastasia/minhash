@@ -22,7 +22,7 @@ def next_prime(hsize:int):
 
 PRIME = next_prime(HASH_SIZE)
 SHINGLE_SIZE = 3
-SHINGLE_TYPE = 3
+# SHINGLE_TYPE = 3
 # SHINGLE_TYPE is 'word' or 'char'
 SHINGLE_TYPE = 'word'
 
@@ -136,7 +136,7 @@ if __name__ == '__main__':
         print("file2 - file to compare")
     else:
 
-        str_one, str_two = ['','']
+        str_one, str_two = [b'',b'']
         with open(sys.argv[1], 'rb+') as f:
             str_one = f.read()
 
