@@ -10,6 +10,11 @@ MAX_SHINGLE_ID = 2**HASH_SIZE-1
 
 # PRIME is the next prime greater than MAX_SHINGLE_ID
 def next_prime(hsize:int):
+    """
+    Minhash relies on the next prime greater than the MAX_SHINGLE_ID (calculated as 2**HASH_SIZE-1).
+    At the moment, HASH_SIZE is set to 32 bytes -- in the future, a user may want to supply their
+    own hash_size and this function provides known prime numbers for common hash sizes (8,16,32).
+    """
     book = {
         '8': 257,
         '16': 65537,
@@ -29,6 +34,7 @@ SHINGLE_TYPE = 'word'
 def HASH_FUNC(x):
     return binascii.crc32(x.encode('utf-8')) & 0xffffffff
 
+# TODO: should probably use the logger module instead of verbose
 def show_hash(x:int, hash_size=HASH_SIZE, strict=False, verbose=True):
     showable = ("{" + "0:0{}b".format(hash_size) + "}").format(x)
 
