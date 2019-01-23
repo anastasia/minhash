@@ -5,16 +5,49 @@ import time
 
 HASH_NUM = 1000
 # 32 byte hash
-MAX_SHINGLE_ID = 2**32-1
+HASH_SIZE = 32
+MAX_SHINGLE_ID = 2**HASH_SIZE-1
+
 # PRIME is the next prime greater than MAX_SHINGLE_ID
-PRIME = 4294967311
+def next_prime(hsize:int):
+    """
+    Minhash relies on the next prime greater than the MAX_SHINGLE_ID (calculated as 2**HASH_SIZE-1).
+    At the moment, HASH_SIZE is set to 32 bytes -- in the future, a user may want to supply their
+    own hash_size and this function provides known prime numbers for common hash sizes (8,16,32).
+    """
+    book = {
+        '8': 257,
+        '16': 65537,
+        '32': 4294967311,
+    }
+    if str(hsize) in book.keys():
+        return book[str(hsize)]
+    else:
+        raise NotImplementedError("only support for 8-,16-, and 32-byte hashes included")
+
+PRIME = next_prime(HASH_SIZE)
 SHINGLE_SIZE = 3
-SHINGLE_TYPE = 3
+# SHINGLE_TYPE = 3
 # SHINGLE_TYPE is 'word' or 'char'
 SHINGLE_TYPE = 'word'
 
 def HASH_FUNC(x):
     return binascii.crc32(x.encode('utf-8')) & 0xffffffff
+
+# TODO: should probably use the logger module instead of verbose
+def show_hash(x:int, hash_size=HASH_SIZE, strict=False, verbose=True):
+    showable = ("{" + "0:0{}b".format(hash_size) + "}").format(x)
+
+    if hash_size < len(showable):
+        msg = "{} overflows a hash size of {}. Found size {}".format(x, hash_size, len(showable))
+        if strict:
+            raise RuntimeError(msg)
+        elif verbose:
+            print("[WARNING] {}".format(msg))
+        else:
+            pass
+
+    return showable
 
 def calculate(
     s1, s2, coeffs_a=None, coeffs_b=None, total_hash_num=HASH_NUM,
@@ -99,11 +132,21 @@ def generate_coefficients(total_hash_num=HASH_NUM, max_shingle_id=MAX_SHINGLE_ID
     return list(rand_set)
 
 if __name__ == '__main__':
-    str_one, str_two = ['','']
-    with open(sys.argv[1], 'rb+') as f:
-        str_one = f.read()
+    if len(sys.argv[1:]) == 0 or sys.argv[1] in ["--help", "-h"]:
+        print("minhash.py  --  calculate the minhash of two files")
+        print("USAGE:")
+        print()
+        print("  python3 minhash.py file1 file2")
+        print()
+        print("file1 - file to compare")
+        print("file2 - file to compare")
+    else:
 
-    with open(sys.argv[2], 'rb+') as f:
-        str_two = f.read()
+        str_one, str_two = [b'',b'']
+        with open(sys.argv[1], 'rb+') as f:
+            str_one = f.read()
 
-    sys.stdout.write(calculate(str_one, str_two))
+        with open(sys.argv[2], 'rb+') as f:
+            str_two = f.read()
+
+        sys.stdout.write(calculate(str_one, str_two))
